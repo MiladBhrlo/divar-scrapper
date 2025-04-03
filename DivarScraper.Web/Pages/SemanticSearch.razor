@@ -1,0 +1,98 @@
+@page "/semantic-search"
+@using DivarScraper.Core.Services
+@inject SemanticCarSearch SearchService
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">جستجوی هوشمند خودرو</h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-4">
+                        <label for="query">جستجوی شما</label>
+                        <textarea class="form-control" id="query" rows="3" @bind="UserQuery" placeholder="مثال: دنبال یک ماشین خانوادگی مدل 1400 به بالا با کارکرد کم در تهران هستم"></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" @onclick="Search">جستجو</button>
+                        <button class="btn btn-outline-primary" @onclick="GetInsights">دریافت تحلیل بازار</button>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(MarketInsights))
+                    {
+                        <div class="alert alert-info mt-4">
+                            <h5>تحلیل بازار:</h5>
+                            <p class="white-space-pre-wrap">@MarketInsights</p>
+                        </div>
+                    }
+
+                    @if (SearchResults?.Any() == true)
+                    {
+                        <div class="mt-4">
+                            <h4>نتایج جستجو:</h4>
+                            @foreach (var result in SearchResults)
+                            {
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title">@result.Ad.Title</h5>
+                                        <p class="card-text">
+                                            <strong>قیمت:</strong> @result.Ad.Price.ToString("N0") تومان<br />
+                                            <strong>سال:</strong> @result.Ad.Year<br />
+                                            <strong>کارکرد:</strong> @result.Ad.Kilometer.ToString("N0") کیلومتر<br />
+                                            <strong>موقعیت:</strong> @result.Ad.City?.Name، @result.Ad.District?.Name
+                                        </p>
+                                        <p class="card-text">
+                                            <small class="text-muted">
+                                                <strong>دلیل تطابق:</strong> @result.MatchReason<br />
+                                                <strong>میزان تطابق:</strong> @(result.Relevance * 100)%
+                                            </small>
+                                        </p>
+                                        <a href="@result.Ad.Link" target="_blank" class="btn btn-sm btn-primary">مشاهده آگهی</a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else if (HasSearched)
+                    {
+                        <div class="alert alert-warning mt-4">
+                            نتیجه‌ای یافت نشد.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .white-space-pre-wrap {
+        white-space: pre-wrap;
+    }
+</style>
+
+@code {
+    private string UserQuery { get; set; }
+    private List<SearchResult> SearchResults { get; set; }
+    private string MarketInsights { get; set; }
+    private bool HasSearched { get; set; }
+
+    private async Task Search()
+    {
+        if (string.IsNullOrWhiteSpace(UserQuery))
+            return;
+
+        HasSearched = true;
+        SearchResults = await SearchService.SearchAsync(UserQuery);
+    }
+
+    private async Task GetInsights()
+    {
+        if (string.IsNullOrWhiteSpace(UserQuery))
+            return;
+
+        MarketInsights = await SearchService.GetInsightsAsync(UserQuery);
+    }
+} 

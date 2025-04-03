@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: divarscraper
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  crawler:
+    build:
+      context: .
+      dockerfile: DivarScraper.Crawler/Dockerfile
+    environment:
+      - DbHost=db
+      - DbName=divarscraper
+      - DbUser=postgres
+      - DbPassword=postgres
+    depends_on:
+      - db
+
+  trainer:
+    build:
+      context: .
+      dockerfile: DivarScraper.Trainer/Dockerfile
+    environment:
+      - DbHost=db
+      - DbName=divarscraper
+      - DbUser=postgres
+      - DbPassword=postgres
+    volumes:
+      - model_data:/app/model
+    depends_on:
+      - db
+
+  web:
+    build:
+      context: .
+      dockerfile: DivarScraper.Web/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DbHost=db
+      - DbName=divarscraper
+      - DbUser=postgres
+      - DbPassword=postgres
+      - ASPNETCORE_URLS=http://+:8080
+    volumes:
+      - model_data:/app/model
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
+  model_data: 

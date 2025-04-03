@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DivarScraper.Crawler", "DivarScraper.Crawler\DivarScraper.Crawler.csproj", "{C35D0B18-A488-4C96-8935-53E219FB1395}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DivarScraper.Trainer", "DivarScraper.Trainer\DivarScraper.Trainer.csproj", "{78789F65-ED37-4113-9AFD-30DDFD6FBC4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DivarScraper.Web", "DivarScraper.Web\DivarScraper.Web.csproj", "{1BD78270-6D65-4D66-9BFB-86595A6C379E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DivarScraper.Core", "DivarScraper.Core\DivarScraper.Core.csproj", "{216DC343-2BD7-4881-86FA-9C8AF597F2CD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C35D0B18-A488-4C96-8935-53E219FB1395}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C35D0B18-A488-4C96-8935-53E219FB1395}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C35D0B18-A488-4C96-8935-53E219FB1395}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C35D0B18-A488-4C96-8935-53E219FB1395}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78789F65-ED37-4113-9AFD-30DDFD6FBC4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78789F65-ED37-4113-9AFD-30DDFD6FBC4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78789F65-ED37-4113-9AFD-30DDFD6FBC4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78789F65-ED37-4113-9AFD-30DDFD6FBC4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BD78270-6D65-4D66-9BFB-86595A6C379E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BD78270-6D65-4D66-9BFB-86595A6C379E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BD78270-6D65-4D66-9BFB-86595A6C379E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BD78270-6D65-4D66-9BFB-86595A6C379E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{216DC343-2BD7-4881-86FA-9C8AF597F2CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{216DC343-2BD7-4881-86FA-9C8AF597F2CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{216DC343-2BD7-4881-86FA-9C8AF597F2CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{216DC343-2BD7-4881-86FA-9C8AF597F2CD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
