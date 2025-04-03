@@ -14,7 +14,7 @@ namespace DivarScraper.Crawler
                 Console.WriteLine("Starting Divar Crawler...");
 
                 var settings = new AppSettings();
-                var repository = new SqliteCarAdRepository(settings);
+                var repository = new PostgresCarAdRepository(settings);
                 var crawler = new DivarCrawler(settings, repository);
 
                 await crawler.CrawlAsync();

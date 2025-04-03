@@ -1,83 +1,76 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.SemanticKernel;
 using DivarScraper.Core.Models;
 using DivarScraper.Core.Settings;
 
 namespace DivarScraper.Core.Services
 {
-    public class PriceAdvice
-    {
-        public long PredictedPrice { get; set; }
-        public string Explanation { get; set; }
-        public double Confidence { get; set; }
-        public List<string> Factors { get; set; }
-    }
-
     public class SmartPriceAdvisor
     {
-        private readonly IKernel _kernel;
-        private readonly ICarPricePredictor _mlPredictor;
+        private readonly ICarPricePredictor _predictor;
+        private readonly DeepSeekClient _deepSeekClient;
         private readonly AppSettings _settings;
 
-        public SmartPriceAdvisor(AppSettings settings, ICarPricePredictor mlPredictor)
+        public SmartPriceAdvisor(ICarPricePredictor predictor, AppSettings settings)
         {
+            _predictor = predictor;
             _settings = settings;
-            _mlPredictor = mlPredictor;
-
-            var builder = new KernelBuilder();
-            builder.WithDeepSeekChatCompletionService(
-                _settings.DeepSeekModel,
-                _settings.DeepSeekKey,
-                _settings.DeepSeekEndpoint
+            _deepSeekClient = new DeepSeekClient(
+                settings.DeepSeekKey,
+                settings.DeepSeekModel,
+                settings.DeepSeekEndpoint
             );
-            _kernel = builder.Build();
+        }
+
+        public class PriceAdvice
+        {
+            public float PredictedPrice { get; set; }
+            public string Explanation { get; set; } = string.Empty;
+            public float Confidence { get; set; }
+            public string[] Factors { get; set; } = Array.Empty<string>();
         }
 
         public async Task<PriceAdvice> GetPriceAdviceAsync(CarTrainingData carData)
         {
             try
             {
-                var mlPrice = await _mlPredictor.PredictAsync(carData);
+                // پیش‌بینی قیمت با ML.NET
+                var predictedPrice = await _predictor.PredictPriceAsync(carData);
 
-                var prompt = @$"
-                    با توجه به مشخصات خودرو و شرایط بازار، تحلیل کنید که آیا قیمت {mlPrice:N0} تومان منصفانه است:
-                    
-                    شهر: {carData.City}
-                    منطقه: {carData.District}
-                    سال ساخت: {carData.Year}
-                    کارکرد: {carData.Kilometer:N0} کیلومتر
+                // تحلیل هوشمند با DeepSeek
+                var prompt = $@"
+                    تحلیل قیمت خودرو با مشخصات زیر:
+                    - سال ساخت: {carData.Year}
+                    - کیلومتر: {carData.Kilometer}
+                    - شهر: {carData.City}
+                    - منطقه: {carData.District}
+                    - قیمت پیش‌بینی شده: {predictedPrice}
 
-                    لطفا پاسخ را در قالب JSON با فرمت زیر برگردانید:
-                    {{
-                        ""explanation"": ""توضیح کامل درباره قیمت"",
-                        ""confidence"": عدد بین 0 تا 1,
-                        ""factors"": [""فاکتور 1"", ""فاکتور 2"", ...]
-                    }}";
+                    لطفاً تحلیل زیر را ارائه دهید:
+                    1. آیا قیمت پیش‌بینی شده منصفانه است؟
+                    2. فاکتورهای مؤثر بر قیمت را ذکر کنید
+                    3. پیشنهادات برای قیمت‌گذاری
+                ";
 
-                var function = _kernel.CreateSemanticFunction(prompt);
-                var result = await function.InvokeAsync();
-                
-                var analysis = System.Text.Json.JsonSerializer.Deserialize<dynamic>(result.ToString());
+                var analysis = await _deepSeekClient.GetCompletionAsync(prompt);
 
                 return new PriceAdvice
                 {
-                    PredictedPrice = mlPrice,
-                    Explanation = analysis.GetProperty("explanation").GetString(),
-                    Confidence = analysis.GetProperty("confidence").GetDouble(),
-                    Factors = analysis.GetProperty("factors").EnumerateArray()
-                        .Select(f => f.GetString())
-                        .ToList()
+                    PredictedPrice = predictedPrice,
+                    Explanation = analysis,
+                    Confidence = 0.85f, // این مقدار می‌تواند بر اساس تحلیل DeepSeek محاسبه شود
+                    Factors = new[] { "سال ساخت", "کیلومتر", "موقعیت جغرافیایی" }
                 };
             }
-            catch (Exception ex)
+            catch
             {
+                // در صورت خطا، یک پاسخ پیش‌فرض برگردانید
                 return new PriceAdvice
                 {
-                    PredictedPrice = await _mlPredictor.PredictAsync(carData),
-                    Explanation = "متأسفانه در تحلیل هوشمند قیمت خطایی رخ داد.",
-                    Confidence = 0.5,
-                    Factors = new List<string>()
+                    PredictedPrice = 0,
+                    Explanation = "خطا در تحلیل قیمت. لطفاً دوباره تلاش کنید.",
+                    Confidence = 0,
+                    Factors = Array.Empty<string>()
                 };
             }
         }

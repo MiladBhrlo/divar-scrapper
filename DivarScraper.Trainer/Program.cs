@@ -15,7 +15,7 @@ namespace DivarScraper.Trainer
                 Console.WriteLine("Starting Model Trainer...");
 
                 var settings = new AppSettings();
-                var repository = new SqliteCarAdRepository(settings);
+                var repository = new PostgresCarAdRepository(settings);
                 var predictor = new CarPricePredictor();
                 var trainer = new ModelTrainer(settings, repository, predictor);
 

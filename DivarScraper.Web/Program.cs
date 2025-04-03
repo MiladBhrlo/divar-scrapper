@@ -11,12 +11,14 @@ builder.Services.AddServerSideBlazor();
 // Register our services
 var settings = new AppSettings
 {
-    OpenAIKey = builder.Configuration["OpenAI:ApiKey"], // از environment variables یا appsettings.json خوانده می‌شود
-    OpenAIModel = builder.Configuration["OpenAI:Model"] ?? "gpt-4"
+    DeepSeekKey= builder.Configuration["DeepSeekSettings:Key"], // از environment variables یا appsettings.json خوانده می‌شود
+    DeepSeekModel= builder.Configuration["DeepSeekSettings:Model"] ?? "gpt-4",
+    //OpenAIKey = builder.Configuration["OpenAI:ApiKey"], // از environment variables یا appsettings.json خوانده می‌شود
+    //OpenAIModel = builder.Configuration["OpenAI:Model"] ?? "gpt-4"
 };
 
 builder.Services.AddSingleton(settings);
-builder.Services.AddSingleton<ICarAdRepository, SqliteCarAdRepository>();
+builder.Services.AddSingleton<ICarAdRepository, PostgresCarAdRepository>();
 builder.Services.AddSingleton<ICarPricePredictor, CarPricePredictor>();
 builder.Services.AddSingleton<SmartPriceAdvisor>();
 builder.Services.AddSingleton<SemanticCarSearch>();

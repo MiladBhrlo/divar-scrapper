@@ -12,6 +12,18 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  migrations:
+    build:
+      context: .
+      dockerfile: DivarScraper.Core/Dockerfile
+    environment:
+      - DbHost=db
+      - DbName=divarscraper
+      - DbUser=postgres
+      - DbPassword=postgres
+    depends_on:
+      - db
+
   crawler:
     build:
       context: .
@@ -21,8 +33,12 @@ services:
       - DbName=divarscraper
       - DbUser=postgres
       - DbPassword=postgres
+      - CHROME_BIN=/usr/bin/google-chrome
+      - CHROME_DRIVER=/usr/bin/chromedriver
     depends_on:
-      - db
+      - migrations
+    privileged: true
+    shm_size: '2gb'
 
   trainer:
     build:
@@ -36,7 +52,7 @@ services:
     volumes:
       - model_data:/app/model
     depends_on:
-      - db
+      - migrations
 
   web:
     build:
@@ -53,7 +69,7 @@ services:
     volumes:
       - model_data:/app/model
     depends_on:
-      - db
+      - migrations
 
 volumes:
   postgres_data:

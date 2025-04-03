@@ -143,8 +143,16 @@ namespace DivarScraper.Crawler
             if (parts.Length >= 2)
             {
                 return (
-                    new City { Name = parts[0].Trim(), PersianName = parts[0].Trim() },
-                    new District { Name = parts[1].Trim(), PersianName = parts[1].Trim() }
+                    new City { 
+                        Name = parts[0].Trim(), 
+                        PersianName = parts[0].Trim(),
+                        DivarId = parts[0].Trim().GetHashCode().ToString()
+                    },
+                    new District { 
+                        Name = parts[1].Trim(), 
+                        PersianName = parts[1].Trim(),
+                        DivarId = parts[1].Trim().GetHashCode().ToString()
+                    }
                 );
             }
             return (null, null);
@@ -160,10 +168,12 @@ namespace DivarScraper.Crawler
                 {
                     Name = $"{parts[0]} {parts[1]}",
                     PersianName = $"{parts[0]} {parts[1]}",
+                    DivarId = $"{parts[0]}_{parts[1]}".GetHashCode().ToString(),
                     Brand = new CarBrand
                     {
                         Name = parts[0],
-                        PersianName = parts[0]
+                        PersianName = parts[0],
+                        DivarId = parts[0].GetHashCode().ToString()
                     }
                 };
             }

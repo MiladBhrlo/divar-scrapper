@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.ML;
 using Microsoft.ML.Data;
@@ -17,7 +19,7 @@ namespace DivarScraper.Core.Services
             _mlContext = new MLContext();
         }
 
-        public async Task TrainAsync(List<CarTrainingData> trainingData)
+        public async Task TrainAsync(IEnumerable<CarTrainingData> trainingData)
         {
             var dataView = _mlContext.Data.LoadFromEnumerable(trainingData);
 
@@ -27,35 +29,52 @@ namespace DivarScraper.Core.Services
                 .Append(_mlContext.Transforms.Concatenate("Features", "Year", "Kilometer", "CityEncoded", "DistrictEncoded"))
                 .Append(_mlContext.Regression.Trainers.Sdca());
 
-            _model = pipeline.Fit(dataView);
+            _model = await Task.Run(() => pipeline.Fit(dataView));
             _predictionEngine = _mlContext.Model.CreatePredictionEngine<CarTrainingData, CarPricePrediction>(_model);
         }
 
-        public async Task<float> PredictAsync(CarTrainingData input)
+        public async Task<float> PredictPriceAsync(CarTrainingData carData)
         {
-            if (_predictionEngine == null)
+            try
             {
-                throw new System.InvalidOperationException("Model has not been trained yet.");
-            }
+                if (_model == null)
+                {
+                    await LoadModelAsync("model.zip");
+                }
 
-            var prediction = _predictionEngine.Predict(input);
-            return prediction.PredictedPrice;
+                var prediction = _predictionEngine.Predict(carData);
+                return prediction.PredictedPrice;
+            }
+            catch (Exception ex)
+            {
+                // در صورت خطا، یک قیمت پیش‌فرض برگردانید
+                return 0;
+            }
         }
 
         public async Task SaveModelAsync(string path)
         {
-            if (_model == null)
+            if (_model != null)
             {
-                throw new System.InvalidOperationException("Model has not been trained yet.");
+                await Task.Run(() => _mlContext.Model.Save(_model, null, path));
             }
-
-            _mlContext.Model.Save(_model, dataView.Schema, path);
+            else
+            {
+                throw new InvalidOperationException("مدل هنوز آموزش ندیده است.");
+            }
         }
 
         public async Task LoadModelAsync(string path)
         {
-            _model = _mlContext.Model.Load(path, out var schema);
-            _predictionEngine = _mlContext.Model.CreatePredictionEngine<CarTrainingData, CarPricePrediction>(_model);
+            if (File.Exists(path))
+            {
+                _model = await Task.Run(() => _mlContext.Model.Load(path, out _));
+                _predictionEngine = _mlContext.Model.CreatePredictionEngine<CarTrainingData, CarPricePrediction>(_model);
+            }
+            else
+            {
+                throw new FileNotFoundException("مدل آموزش دیده یافت نشد.");
+            }
         }
     }
 

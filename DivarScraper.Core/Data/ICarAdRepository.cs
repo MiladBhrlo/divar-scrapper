@@ -6,10 +6,13 @@ namespace DivarScraper.Core.Data
 {
     public interface ICarAdRepository
     {
-        Task SaveAdsAsync(List<CarAd> ads);
+        Task<List<CarAd>> GetAllAsync();
         Task<List<CarAd>> GetAllAdsAsync();
-        Task<City> GetOrCreateCityAsync(City city);
-        Task<District> GetOrCreateDistrictAsync(District district);
-        Task<CarModel> GetOrCreateCarModelAsync(CarModel model);
+        Task<CarAd> GetByIdAsync(int id);
+        Task<CarAd> GetByTokenAsync(string token);
+        Task AddAsync(CarAd carAd);
+        Task UpdateAsync(CarAd carAd);
+        Task DeleteAsync(int id);
+        Task SaveAdsAsync(IEnumerable<CarAd> carAds);
     }
-} 
+}
