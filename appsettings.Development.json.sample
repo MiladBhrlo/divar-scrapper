@@ -1,0 +1,21 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Database=divarscraper;Username=postgres;Password=your_password"
+  },
+  "DivarSettings": {
+    "BaseUrl": "https://divar.ir",
+    "CityIds": ["tehran"]
+  },
+  "DeepSeekSettings": {
+    "Key": "your_deepseek_api_key",
+    "Model": "deepseek-chat",
+    "Endpoint": "https://api.deepseek.com/v1/"
+  },
+  "AllowedHosts": "*"
+} 
